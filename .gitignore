@@ -1,0 +1,6 @@
+node_modules
+.env
+norms.json
+hao-phi_*
+discover-report.json
+data/

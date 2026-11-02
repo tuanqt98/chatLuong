@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hao phí sản xuất</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect x='1' y='8' width='3' height='7' rx='1' fill='%232a78d6'/><rect x='6' y='4' width='3' height='11' rx='1' fill='%232a78d6'/><rect x='11' y='1' width='3' height='14' rx='1' fill='%23d03b3b'/></svg>">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo" aria-hidden="true"></span>
+      <div>
+        <h1>Hao phí sản xuất</h1>
+        <p class="sub" id="sub">Dữ liệu từ Odoo</p>
+      </div>
+    </div>
+    <nav class="tabs" role="tablist">
+      <a href="#/" data-view="report" role="tab">Báo cáo</a>
+      <a href="#/settings" data-view="settings" role="tab">Cài đặt</a>
+    </nav>
+  </header>
+
+  <!-- ═════════════ BÁO CÁO ═════════════ -->
+  <main id="view-report" class="view" hidden>
+    <section class="toolbar" aria-label="Bộ lọc thời gian">
+      <div class="seg" id="presets">
+        <button data-preset="today">Hôm nay</button>
+        <button data-preset="yesterday">Hôm qua</button>
+        <button data-preset="7d">7 ngày</button>
+        <button data-preset="month">Tháng này</button>
+        <button data-preset="lastmonth">Tháng trước</button>
+      </div>
+      <label class="date">Từ <input type="date" id="from"></label>
+      <label class="date">Đến <input type="date" id="to"></label>
+      <span class="spacer"></span>
+      <button class="btn" id="btn-refresh" title="Lấy lại dữ liệu mới nhất từ Odoo">↻ Tải lại</button>
+      <div class="dropdown">
+        <button class="btn primary" id="btn-export">⤓ Xuất Excel</button>
+        <div class="menu" id="export-menu" hidden>
+          <a data-type="summary">Tổng hợp (công nhân × ngày)</a>
+          <a data-type="detail">Chi tiết theo công đoạn</a>
+        </div>
+      </div>
+    </section>
+
+    <div id="alerts"></div>
+
+    <div id="loading" class="loading" hidden><span class="spinner"></span> Đang lấy dữ liệu từ Odoo…</div>
+
+    <div id="report-body">
+      <section class="kpis" id="kpis" aria-label="Chỉ số tổng"></section>
+
+      <section class="charts">
+        <article class="card span-2">
+          <header><h2>Phế thực tế so với cho phép — theo công nhân</h2>
+            <div class="legend">
+              <span><i class="sw bar"></i>SL phế thực tế</span>
+              <span><i class="sw tick"></i>SL phế cho phép (định mức)</span>
+            </div>
+          </header>
+          <div id="chart-workers" class="hbars"></div>
+        </article>
+        <article class="card">
+          <header><h2>Nguyên nhân phế</h2><span class="unit">SL phế</span></header>
+          <div id="chart-reasons" class="hbars"></div>
+        </article>
+        <article class="card">
+          <header><h2>Lý do dừng máy</h2><span class="unit">giờ</span></header>
+          <div id="chart-down" class="hbars"></div>
+        </article>
+        <article class="card span-4" id="card-trend" hidden>
+          <header><h2>Tỷ lệ phế theo ngày</h2>
+            <div class="legend">
+              <span><i class="sw line"></i>Thực tế</span>
+              <span><i class="sw dash"></i>Cho phép</span>
+            </div>
+          </header>
+          <div id="chart-trend" class="trend"></div>
+        </article>
+      </section>
+
+      <section class="card table-card">
+        <header class="table-head">
+          <h2>Chi tiết theo công nhân</h2>
+          <div class="filters">
+            <input type="search" id="q" placeholder="Tìm công nhân, lệnh SX…">
+            <select id="wc"><option value="">Tất cả máy</option></select>
+            <label class="chk"><input type="checkbox" id="over-only"> Chỉ vượt định mức</label>
+            <div class="seg small" id="group">
+              <button data-group="day" class="on">Theo ngày</button>
+              <button data-group="worker">Gộp theo người</button>
+            </div>
+          </div>
+        </header>
+        <div class="table-wrap">
+          <table id="tbl">
+            <thead></thead>
+            <tbody></tbody>
+            <tfoot></tfoot>
+          </table>
+        </div>
+        <p class="empty" id="empty" hidden>Không có dữ liệu trong khoảng này.</p>
+      </section>
+    </div>
+  </main>
+
+  <!-- ═════════════ CÀI ĐẶT ═════════════ -->
+  <main id="view-settings" class="view" hidden>
+    <form id="settings-form" autocomplete="off">
+      <section class="card form-card">
+        <header><h2>Kết nối Odoo</h2></header>
+        <div class="grid-2">
+          <label>Địa chỉ Odoo <input name="odoo.url" placeholder="http://192.168.1.10:8069" required></label>
+          <label>Database <input name="odoo.db" required></label>
+          <label>Tài khoản (login) <input name="odoo.username" required></label>
+          <label>API key <input name="odoo.apiKey" type="password" required>
+            <small>Odoo → Ảnh đại diện → Preferences → Account Security → New API Key</small></label>
+        </div>
+        <div class="row">
+          <button type="button" class="btn" id="btn-test">Kiểm tra kết nối</button>
+          <span id="test-result" class="hint"></span>
+        </div>
+      </section>
+
+      <section class="card form-card">
+        <header><h2>Thời gian</h2></header>
+        <div class="grid-2">
+          <label>Múi giờ <input name="tz"></label>
+          <label>Giờ chốt ngày (ca đêm) <input name="dayCutoffHour" type="number" min="0" max="12" step="1">
+            <small>VD 6: máy chạy lúc 02:00 sáng 03/11 được tính cho ngày 02/11. 0 = theo lịch.</small></label>
+        </div>
+      </section>
+
+      <section class="card form-card">
+        <header><h2>Định mức phế phẩm</h2></header>
+        <p class="hint">SL phế cho phép của 1 công đoạn = <b>hao phí lên máy</b> + <b>%</b> × SL đạt.
+          Ưu tiên: field Odoo → theo sản phẩm → theo máy → mặc định.</p>
+        <div class="grid-3">
+          <label>Mặc định — % <input name="norms.default.pct" type="number" step="0.01" min="0" max="100"></label>
+          <label>Mặc định — hao phí lên máy <input name="norms.default.setupQty" type="number" step="any" min="0"></label>
+          <label>Field định mức trên sản phẩm (Odoo) <input name="norms.odooProductNormField" placeholder="x_dinh_muc_hao_phi">
+            <small>Bỏ trống nếu không có</small></label>
+        </div>
+
+        <h3>Theo máy</h3>
+        <table class="norm-table" data-map="byWorkcenter">
+          <thead><tr><th>Tên máy (work center)</th><th>%</th><th>Hao phí lên máy</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <button type="button" class="btn small" data-add="byWorkcenter">+ Thêm máy</button>
+        <datalist id="wc-list"></datalist>
+
+        <h3>Theo sản phẩm</h3>
+        <table class="norm-table" data-map="byProduct">
+          <thead><tr><th>Mã sản phẩm (mã nội bộ)</th><th>%</th><th>Hao phí lên máy</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <button type="button" class="btn small" data-add="byProduct">+ Thêm sản phẩm</button>
+      </section>
+
+      <section class="card form-card">
+        <header><h2>Định mức nguyên vật liệu</h2></header>
+        <div class="grid-2">
+          <label>Hao hụt NVL cho phép (% so với BoM) <input name="norms.material.pct" type="number" step="0.01" min="0" max="100"></label>
+          <label>Chỉ tính NVL có đơn vị <input name="norms.material.uomNames" placeholder="m, m², m2">
+            <small>Phân cách bằng dấu phẩy — tránh cộng lẫn mét giấy với kg mực</small></label>
+        </div>
+      </section>
+
+      <div class="savebar">
+        <span id="save-result" class="hint"></span>
+        <button type="submit" class="btn primary">Lưu cài đặt</button>
+      </div>
+    </form>
+  </main>
+
+  <!-- Ngăn kéo chi tiết -->
+  <aside id="drawer" class="drawer" hidden aria-modal="true" role="dialog">
+    <div class="drawer-panel">
+      <button class="close" id="drawer-close" aria-label="Đóng">×</button>
+      <div id="drawer-body"></div>
+    </div>
+  </aside>
+
+  <div id="tip" class="tip" hidden></div>
+  <div id="toast" class="toast" hidden></div>
+
+  <script src="app.js" type="module"></script>
+</body>
+</html>

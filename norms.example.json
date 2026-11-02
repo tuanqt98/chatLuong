@@ -1,0 +1,12 @@
+{
+  "default": { "pct": 3, "setupQty": 0 },
+  "byWorkcenter": {
+    "Máy in Flexo 01": { "pct": 2.5, "setupQty": 150 },
+    "Máy bế 02": { "pct": 1.5, "setupQty": 50 }
+  },
+  "byProduct": {
+    "TEM-SAMSUNG-A01": { "pct": 1, "setupQty": 100 }
+  },
+  "odooProductNormField": "",
+  "material": { "pct": 5, "uomNames": ["m", "m²", "m2"] }
+}
