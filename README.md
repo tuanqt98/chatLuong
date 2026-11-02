@@ -12,7 +12,7 @@ App gồm các phần sau:
   - Nút xuất Excel (CSV)
 - **Cài đặt**: kết nối Odoo (có nút kiểm tra), giờ chốt ngày cho ca đêm, định mức theo máy và theo sản phẩm, định mức NVL. Mọi thứ chỉnh trên giao diện, không cần sửa file.
 
-Không cần `npm install` để chạy, vì app không phụ thuộc thư viện nào. Chỉ cần **Node.js ≥ 22.18**.
+Không cần `npm install` để chạy, vì app không phụ thuộc thư viện nào. Chỉ cần **Node.js ≥ 22.6**. Các lệnh `npm run ...` và `start.bat` đã kèm sẵn cờ `--experimental-strip-types`. Cờ này giúp Node 22.6–22.17 chạy thẳng file `.ts`; từ Node 22.18 tính năng đã bật sẵn.
 
 ## Chạy thử ngay (không cần Odoo)
 
@@ -22,13 +22,13 @@ npm run demo        # mở http://localhost:3100 — dữ liệu giả 8 công n
 
 ## Cài lên máy chủ trong công ty (Windows)
 
-1. Cài Node.js 22 LTS hoặc mới hơn (https://nodejs.org) lên máy sẽ làm máy chủ. Nên chọn máy luôn bật và đặt IP tĩnh.
+1. Cài Node.js 22 LTS (≥ 22.6) hoặc mới hơn (https://nodejs.org) lên máy sẽ làm máy chủ. Nên chọn máy luôn bật và đặt IP tĩnh.
 2. Chép thư mục này vào máy, ví dụ `D:\hao-phi`.
 3. Mở `start.bat`, **đổi `APP_PASSWORD`**, rồi chạy file. Cửa sổ sẽ in ra địa chỉ LAN, ví dụ `http://192.168.1.20:3100`.
 4. Mở địa chỉ đó trong trình duyệt → đăng nhập `admin` / mật khẩu vừa đặt → vào **Cài đặt** → điền Odoo → bấm **Kiểm tra kết nối** → **Lưu**.
 5. Mở cổng trên Windows Firewall (chạy CMD bằng quyền Administrator):
    `netsh advfirewall firewall add rule name="Hao phi" dir=in action=allow protocol=TCP localport=3100`
-6. Để app tự chạy khi bật máy, có hai cách. Cách 1: dùng Task Scheduler, tạo task *At startup* chạy `start.bat`. Cách 2: dùng NSSM để cài thành Windows Service (`nssm install HaoPhi "C:\Program Files\nodejs\node.exe" "D:\hao-phi\src\server.ts"`, đặt *AppDirectory* là `D:\hao-phi`, rồi thêm biến môi trường `APP_PASSWORD`).
+6. Để app tự chạy khi bật máy, có hai cách. Cách 1: dùng Task Scheduler, tạo task *At startup* chạy `start.bat`. Cách 2: dùng NSSM để cài thành Windows Service (`nssm install HaoPhi "C:\Program Files\nodejs\node.exe" --experimental-strip-types D:\hao-phi\src\server.ts`, đặt *AppDirectory* là `D:\hao-phi`, rồi thêm biến môi trường `APP_PASSWORD`).
 
 Cài đặt được lưu ở `data/settings.json`. Nên sao lưu file này. Trình duyệt không bao giờ nhận được API key thật, chỉ thấy chuỗi `••••••••`.
 
